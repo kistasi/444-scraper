@@ -1,0 +1,15 @@
+{
+    "name": "kistasi/444-scraper",
+    "description": "444.hu Web Scraper",
+    "type": "project",
+    "require": {
+        "fabpot/goutte": "^4.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marton Tasnadi",
+            "email": "marton.tasnadi@gmail.com"
+        }
+    ]
+}

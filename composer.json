@@ -4,9 +4,7 @@
     "type": "project",
     "require": {
         "fabpot/goutte": "^4.0",
-        "phpoffice/phpspreadsheet": "^1.15",
-        "nesbot/carbon": "^2.43",
-        "squizlabs/php_codesniffer": "*"
+        "phpoffice/phpspreadsheet": "^1.15"
     },
     "license": "MIT",
     "authors": [

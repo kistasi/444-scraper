@@ -6,32 +6,54 @@ use Symfony\Component\DomCrawler\Crawler;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-const MAIN_URL = 'https://444.hu/';
-const AUTHORS = [
-    'acsd', 'bedem', 'borosj', 'botost', 'csurgod', 'czinkoczis', 'erdelyip', 'haszanz', 'herczegm', 'horvathb',
-    'akiraly', 'magyarip', 'winkler', 'neubergere', 'plankog', 'renyip', 'sarkadizs', 'szaszzs', 'szily', 'szuroveczi',
-    'tbg', 'peteru', 'urfip', 'vajdag'
-];
+const BASE_URL = 'https://444.hu/';
 
 function main()
 {
-    $data = scrape();
-    makeExcelFromData($data);
+    $authors = scrapeAuthors();
+    $authors = modifyAuthors($authors);
+
+    $articles = scrapeArticles($authors);
+    $articles = filterArticleDuplications($articles);
+
+    makeExcelFromData($articles);
 }
 
-function scrape()
+function scrapeAuthors(): array
+{
+    $client = new Client();
+    $authors = [];
+
+    $authors_url = BASE_URL . 'impresszum';
+    $authors_page = $client->request('GET', $authors_url);
+    $authors_page->filter('a[title="Cikkek"]')->each(function (Crawler $node) use ($client, &$authors) {
+        $authors[] = explode('/', $node->attr('href'))[4];
+    });
+
+    return $authors;
+}
+
+function modifyAuthors(array $authors): array
+{
+    unset($authors[array_search('hirdetes', $authors)]);
+    $authors[] = 'winkler';
+
+    return $authors;
+}
+
+function scrapeArticles(array $authors): array
 {
     $client = new Client();
     $data = [];
 
-    foreach (AUTHORS as $author) {
+    foreach ($authors as $author) {
         scraperLog('Author: ' . $author);
 
         $articlesInPage = true;
         $page = 1;
 
         while ($articlesInPage) {
-            $authorPageUrl = MAIN_URL . 'author/' . $author . '?page=' . $page;
+            $authorPageUrl = BASE_URL . 'author/' . $author . '?page=' . $page;
 
             scraperLog('Author page URL: ' . $authorPageUrl);
 
@@ -64,6 +86,11 @@ function scrape()
     }
 
     return $data;
+}
+
+function filterArticleDuplications(array $articles): array
+{
+    return $articles;
 }
 
 function extractDateFromUrl(string $url): string
